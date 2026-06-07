@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getWorkById } from '@/utils/storage';
 import type { Work, TeaseButton } from '@/types';
-import { ArrowLeft, RotateCcw, Home, ChevronDown, Hand, Menu } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Home, ChevronDown, Hand, Menu, PenLine } from 'lucide-react';
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>();
@@ -152,6 +152,13 @@ export default function PlayerPage() {
               <Home className="w-4 h-4" />
               首页
             </button>
+            <button
+              onClick={() => navigate('/editor')}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors border border-gray-700 min-h-[48px] w-full sm:w-auto"
+            >
+              <PenLine className="w-4 h-4" />
+              编辑作品
+            </button>
           </div>
         </div>
       </div>
@@ -199,6 +206,13 @@ export default function PlayerPage() {
               <RotateCcw className="w-3.5 h-3.5" />
               重来
             </button>
+            <button
+              onClick={() => navigate('/editor')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded text-xs transition-colors"
+            >
+              <PenLine className="w-3.5 h-3.5" />
+              编辑
+            </button>
           </div>
         </div>
 
@@ -239,6 +253,12 @@ export default function PlayerPage() {
               className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-gray-800 text-gray-300 rounded-lg text-xs active:bg-gray-700 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />重来
+            </button>
+            <button
+              onClick={() => navigate('/editor')}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-gray-800 text-gray-300 rounded-lg text-xs active:bg-gray-700 transition-colors"
+            >
+              <PenLine className="w-3.5 h-3.5" />编辑
             </button>
           </div>
         )}
