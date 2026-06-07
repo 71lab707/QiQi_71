@@ -10,6 +10,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/editor" element={<EditorPage />} />
         <Route path="/player/:id" element={<PlayerPage />} />
+        <Route path="/play/*" element={<PlayerPage />} />
       </Routes>
     </Router>
   );

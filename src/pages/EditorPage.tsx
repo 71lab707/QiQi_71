@@ -22,7 +22,7 @@ import {
   Share2,
   Check,
 } from 'lucide-react';
-import { encodeWorkToUrl } from '@/utils/urlShare';
+import { encodeWorkToUrl, generateShareUrl } from '@/utils/urlShare';
 
 export default function EditorPage() {
   const {
@@ -88,9 +88,7 @@ export default function EditorPage() {
   // 生成分享链接
   const handleShare = () => {
     persist();
-    const baseUrl = window.location.origin + window.location.pathname;
-    const encoded = encodeWorkToUrl(currentWork);
-    const url = `${baseUrl}#/player/share?${encoded}`;
+    const url = generateShareUrl(currentWork);
     setShareUrl(url);
     setShowShareModal(true);
     setCopied(false);
