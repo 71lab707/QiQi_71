@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getWorkById } from '@/utils/storage';
+import { decodeWorkFromUrl, isShareUrl } from '@/utils/urlShare';
 import type { Work, TeaseButton } from '@/types';
 import { ArrowLeft, RotateCcw, Home, ChevronDown, Hand, Menu, PenLine } from 'lucide-react';
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [work, setWork] = useState<Work | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [isShareMode, setIsShareMode] = useState(false);
   const [currentPageId, setCurrentPageId] = useState<string>('');
   const [history, setHistory] = useState<string[]>([]);
   const [showEndScreen, setShowEndScreen] = useState(false);
@@ -20,6 +23,20 @@ export default function PlayerPage() {
   const [toolbarExpanded, setToolbarExpanded] = useState(false);
 
   useEffect(() => {
+    // 优先从 URL 分享数据加载
+    if (id === 'share' || isShareUrl(location.hash)) {
+      const shareWork = decodeWorkFromUrl(location.hash);
+      if (shareWork) {
+        setWork(shareWork);
+        setCurrentPageId(shareWork.startPageId);
+        setHistory([shareWork.startPageId]);
+        setIsShareMode(true);
+      }
+      setLoaded(true);
+      return;
+    }
+
+    // 从 localStorage 加载
     if (id) {
       const found = getWorkById(id);
       if (found) {
@@ -29,7 +46,7 @@ export default function PlayerPage() {
       }
       setLoaded(true);
     }
-  }, [id]);
+  }, [id, location.hash]);
 
   const currentPage = work?.pages.find((p) => p.id === currentPageId);
 

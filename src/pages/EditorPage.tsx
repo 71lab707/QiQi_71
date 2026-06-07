@@ -19,7 +19,10 @@ import {
   X,
   PanelLeftClose,
   PanelLeft,
+  Share2,
+  Check,
 } from 'lucide-react';
+import { encodeWorkToUrl } from '@/utils/urlShare';
 
 export default function EditorPage() {
   const {
@@ -49,6 +52,9 @@ export default function EditorPage() {
 
   // 移动端：侧边栏展开状态
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!currentWork.id) {
@@ -77,6 +83,36 @@ export default function EditorPage() {
   const handlePreview = () => {
     persist();
     navigate(`/player/${currentWork.id}`);
+  };
+
+  // 生成分享链接
+  const handleShare = () => {
+    persist();
+    const baseUrl = window.location.origin + window.location.pathname;
+    const encoded = encodeWorkToUrl(currentWork);
+    const url = `${baseUrl}#/player/share?${encoded}`;
+    setShareUrl(url);
+    setShowShareModal(true);
+    setCopied(false);
+  };
+
+  // 复制分享链接
+  const handleCopyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const input = document.createElement('input');
+      input.value = shareUrl;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   // 选择页面后关闭移动端侧栏
@@ -142,6 +178,13 @@ export default function EditorPage() {
           >
             <Eye className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">预览</span>
+          </button>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1 px-3 sm:px-4 py-1.5 bg-blue-700/80 hover:bg-blue-600 text-white rounded-md text-xs font-medium transition-colors min-h-[36px]"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">分享</span>
           </button>
         </div>
       </header>
@@ -554,6 +597,67 @@ export default function EditorPage() {
           )}
         </main>
       </div>
+
+      {/* ====== 分享弹窗 ====== */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70" onClick={() => setShowShareModal(false)}>
+          <div
+            className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-white">分享作品</h3>
+              <button onClick={() => setShowShareModal(false)} className="w-8 h-8 rounded-lg hover:bg-gray-800 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-400 mb-3">复制以下链接，发送给任何人即可直接播放：</p>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={shareUrl}
+                readOnly
+                className="flex-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2.5 text-xs text-gray-300 font-mono truncate focus:outline-none"
+              />
+              <button
+                onClick={handleCopyShareUrl}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-medium transition-colors min-h-[40px] shrink-0 ${
+                  copied
+                    ? 'bg-green-700/80 text-white'
+                    : 'bg-blue-700/80 hover:bg-blue-600 text-white'
+                }`}
+              >
+                {copied ? <><Check className="w-3.5 h-3.5" />已复制</> : <><Copy className="w-3.5 h-3.5" />复制</>}
+              </button>
+            </div>
+
+            <div className="mt-4 p-3 bg-gray-950/60 rounded-lg">
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                此链接包含完整的作品数据，无需登录即可打开。链接较长是正常的（数据编码在 URL 中）。
+              </p>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-medium transition-colors min-h-[40px]"
+              >
+                <Eye className="w-3.5 h-3.5" />在新窗口预览
+              </a>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg text-xs transition-colors min-h-[40px]"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
