@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getWorkById } from '@/utils/storage';
 import { decodeWorkFromUrl, isShareUrl } from '@/utils/urlShare';
 import type { Work, TeaseButton } from '@/types';
-import { ArrowLeft, RotateCcw, Home, ChevronDown, Hand, Menu, PenLine } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Home, ChevronDown, Hand, Menu, PenLine, FileText } from 'lucide-react';
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>();
@@ -115,14 +115,30 @@ export default function PlayerPage() {
   // 未找到
   if (!work) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-gray-500 gap-4 px-6 text-center">
-        <p className="text-lg">未找到该作品</p>
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors min-h-[44px]"
-        >
-          返回首页
-        </button>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-gray-500 gap-5 px-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-gray-900 border border-gray-800 flex items-center justify-center">
+          <FileText className="w-7 h-7 text-gray-700" />
+        </div>
+        <div>
+          <p className="text-lg text-gray-400 mb-1">作品不存在或链接已失效</p>
+          <p className="text-sm text-gray-600 max-w-sm mx-auto leading-relaxed">
+            请使用编辑器创建作品后，通过「分享」按钮生成可播放的链接
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-2">
+          <button
+            onClick={() => navigate('/editor')}
+            className="px-6 py-3 bg-blue-700/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors min-h-[48px]"
+          >
+            去创作
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors min-h-[48px]"
+          >
+            返回首页
+          </button>
+        </div>
       </div>
     );
   }

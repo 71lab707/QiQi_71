@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllWorks, deleteWork } from '@/utils/storage';
-import { encodeWorkToUrl } from '@/utils/urlShare';
-import type { Work } from '@/types';
 import {
   PenLine,
   Play,
@@ -10,7 +8,6 @@ import {
   Plus,
   Clock,
   FileText,
-  Sparkles,
 } from 'lucide-react';
 
 interface WorkItem {
@@ -21,22 +18,9 @@ interface WorkItem {
   updatedAt: number;
 }
 
-// 预设示例作品
-const SAMPLE_WORKS = [
-  {
-    id: 'sample_demo',
-    title: '示例作品 - 互动故事',
-    author: 'QiQi Lab',
-    pagesCount: 4,
-    description: '体验分页式互动故事的完整流程',
-    jsonFile: '/samples/demo.json',
-  },
-];
-
 export default function HomePage() {
   const navigate = useNavigate();
   const [works, setWorks] = useState<WorkItem[]>([]);
-  const [sampleLoaded, setSampleLoaded] = useState<Record<string, Work | null>>({});
 
   const loadWorks = () => {
     const allWorks = getAllWorks();
@@ -50,21 +34,6 @@ export default function HomePage() {
       }))
     );
   };
-
-  // 加载预设示例作品
-  useEffect(() => {
-    SAMPLE_WORKS.forEach(async (sample) => {
-      try {
-        const res = await fetch(sample.jsonFile);
-        if (res.ok) {
-          const data: Work = await res.json();
-          setSampleLoaded((prev) => ({ ...prev, [sample.id]: data }));
-        }
-      } catch {
-        // 加载失败静默处理
-      }
-    });
-  }, []);
 
   useEffect(() => {
     loadWorks();
@@ -83,16 +52,6 @@ export default function HomePage() {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  // 点击示例作品 → 生成分享链接并跳转
-  const handlePlaySample = async (sampleId: string) => {
-    const workData = sampleLoaded[sampleId];
-    if (!workData) return;
-
-    const baseUrl = window.location.origin + window.location.pathname;
-    const encoded = encodeWorkToUrl(workData);
-    navigate(`#/player/share?${encoded}`);
   };
 
   return (
@@ -136,44 +95,7 @@ export default function HomePage() {
           </button>
         </header>
 
-        {/* ====== 示例作品 ====== */}
-        <section className="mb-12">
-          <h2 className="text-xs font-medium uppercase tracking-widest text-gray-600 mb-4 px-1 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-blue-500/50" />
-            示例作品
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {SAMPLE_WORKS.map((sample) => (
-              <div
-                key={sample.id}
-                onClick={() => handlePlaySample(sample.id)}
-                className="group relative bg-gradient-to-b from-blue-950/20 to-gray-950/40 border border-blue-900/20 rounded-xl p-4 sm:p-5 hover:border-blue-700/40 hover:bg-blue-950/30 transition-all duration-200 cursor-pointer active:bg-blue-950/40"
-              >
-                <div className="absolute top-2.5 left-2.5">
-                  <span className="text-[9px] bg-blue-900/40 text-blue-400/70 px-2 py-0.5 rounded font-mono">DEMO</span>
-                </div>
-
-                <h3 className="text-sm font-medium text-gray-300 pl-14 truncate mb-1">
-                  {sample.title}
-                </h3>
-
-                <p className="text-xs text-gray-500 mb-2">{sample.author}</p>
-                <p className="text-[11px] text-gray-600 mb-3">{sample.description}</p>
-
-                <div className="flex items-center justify-between pt-3 border-t border-gray-800/30">
-                  <span className="flex items-center gap-1.5 text-[11px] text-gray-600">
-                    <FileText className="w-3 h-3" />
-                    {sample.pagesCount} 页
-                  </span>
-                  <Play className="w-4 h-4 text-blue-500/60 group-hover:text-blue-400 transition-colors fill-blue-500/30 group-hover:fill-blue-400/50" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ====== 我的作品 ====== */}
+        {/* 作品列表 */}
         <section>
           <h2 className="text-xs font-medium uppercase tracking-widest text-gray-600 mb-4 px-1">
             我的作品
@@ -183,7 +105,7 @@ export default function HomePage() {
             <div className="text-center py-16 sm:py-20">
               <FileText className="w-11 h-11 sm:w-12 sm:h-12 text-gray-800 mx-auto mb-3" />
               <p className="text-gray-600 text-sm">还没有任何作品</p>
-              <p className="text-gray-700 text-xs mt-1">点击上方按钮开始创作，或先体验示例作品</p>
+              <p className="text-gray-700 text-xs mt-1">点击上方按钮开始创作</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
